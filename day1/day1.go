@@ -7,6 +7,7 @@ import (
 	"os"
 	"sort"
 	"strconv"
+	"time"
 )
 
 func Run(input string) (string, string, error) {
@@ -38,6 +39,8 @@ func Run(input string) (string, string, error) {
 	//changes = []int{-6,3,8,5,-6}
 	//changes = []int{7,7,-2,-7,-4}
 
+
+	start1 := time.Now()
 	initial := 0
 	freq := []int{initial}
 	for _,c := range changes {
@@ -45,9 +48,10 @@ func Run(input string) (string, string, error) {
 		freq = append(freq,initial)
 	}
 	//fmt.Println(initial," ",freq)
-
+	elapsed1 := time.Since(start1)
 	output := strconv.Itoa(initial)
 
+	start2 := time.Now()
 	var output2 string
 	Loop:
 		for  {
@@ -67,6 +71,9 @@ func Run(input string) (string, string, error) {
 				}
 			}
 		}
+	elapsed2 := time.Since(start2)
+
+	fmt.Printf("First day: Time ans1: %s, Time ans2: %s\n", elapsed1,elapsed2)
 	if err != nil {
 		return "","",err
 	}
@@ -82,8 +89,9 @@ func searchFirstDup(a []int) (int, error) {
 	}
 
 	var finds []find
+	temps = a
 	for i:=0;i<len(a);i++ {
-		temps = copyMinusElement(a,i)
+		//temps = copyMinusElement(a,i)
 		for j:=0;j<len(temps);j++ {
 			if a[i] == temps[j] {
 				if j-i > 0 {
@@ -117,7 +125,7 @@ func containsDuplicates(slice []int) bool {
 
 	ret := false
 
-	var results []int
+	//var results []int
 
 
 	scopy := make([]int,len(slice))
@@ -128,8 +136,8 @@ func containsDuplicates(slice []int) bool {
 	})
 	for i:=0;i<len(scopy)-1;i++ {
 		if scopy[i] == scopy[i+1] {
-			fmt.Println("Duplicate found ", scopy[i], " ",scopy[i+1])
-			results = append(results,scopy[i])
+			//fmt.Println("Duplicate found ", scopy[i], " ",scopy[i+1])
+			//results = append(results,scopy[i])
 			ret = true
 		}
 	}
