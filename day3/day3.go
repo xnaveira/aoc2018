@@ -173,6 +173,9 @@ func plotFabric(fabric [1000][1000]int, boxes boxArray) error {
 	for _, b := range boxes {
 		c := randomColor()
 		//fmt.Printf("color %v", c)
+		if b.id == 275 {
+			gc.SetStrokeColor(color.RGBA{0xff, 0x00, 0x00, 0xff})
+		}
 		gc.SetFillColor(c)
 		gc.BeginPath()
 		//fmt.Printf("Draw: %d, %d, %d, %d\n", b.loc.X, b.loc.Y, b.size.X, b.size.Y)
