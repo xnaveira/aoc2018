@@ -7,6 +7,7 @@ import (
 	"github.com/xnaveira/aoc2018/day3"
 	"log"
 	"os"
+	"strconv"
 )
 
 func main() {
@@ -19,30 +20,35 @@ func main() {
 	toRun := os.Args[1]
 	fmt.Printf("Running %s\n", toRun)
 
-	switch toRun {
-	case "day1":
-		day1result, day1resultb, err := day1.Run(os.Args[2])
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("The first result for day1 is: %s\n", day1result)
-		fmt.Printf("The second result for day1 is: %s\n", day1resultb)
-	case "day2":
-		day2result, day2resultb, err := day2.Run(os.Args[2])
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("The first result for day2 is: %s\n", day2result)
-		fmt.Printf("The second result for day2 is: %s\n", day2resultb)
-	case "day3":
-		day3result, day3resultb, err := day3.Run(os.Args[2])
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("The first result for day3 is: %s\n", day3result)
-		fmt.Printf("The second result for day3 is: %s\n", day3resultb)
+	type solution func(string) (string, string, error)
 
+	type result struct {
+		result1, result2 string
 	}
 
-}
+	type day struct {
+		input    string
+		solution solution
+		result   result
+	}
 
+	var days []day
+
+	days = append(days, day{"day1/input.txt", day1.Run, result{"", ""}})
+	days = append(days, day{"day2/input.txt", day2.Run, result{"", ""}})
+	days = append(days, day{"day3/input.txt", day3.Run, result{"", ""}})
+
+	theday, err := strconv.Atoi(os.Args[1])
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	challenge := days[theday-1]
+	challenge.result.result1, challenge.result.result2, err = challenge.solution(challenge.input)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("Day %d:\nSolution to the first problem:%s\nSolution to the second problem:%s", theday, challenge.result.result1, challenge.result.result2)
+
+}
