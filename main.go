@@ -5,6 +5,7 @@ import (
 	"github.com/xnaveira/aoc2018/day1"
 	"github.com/xnaveira/aoc2018/day2"
 	"github.com/xnaveira/aoc2018/day3"
+	"github.com/xnaveira/aoc2018/day4"
 	"log"
 	"os"
 	"strconv"
@@ -37,6 +38,7 @@ func main() {
 	days = append(days, day{"day1/input.txt", day1.Run, result{"", ""}})
 	days = append(days, day{"day2/input.txt", day2.Run, result{"", ""}})
 	days = append(days, day{"day3/input.txt", day3.Run, result{"", ""}})
+	days = append(days, day{"day4/input.txt", day4.Run, result{"", ""}})
 
 	theday, err := strconv.Atoi(os.Args[1])
 	if err != nil {
