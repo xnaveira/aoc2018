@@ -7,6 +7,7 @@ import (
 	"github.com/xnaveira/aoc2018/day3"
 	"github.com/xnaveira/aoc2018/day4"
 	"github.com/xnaveira/aoc2018/day5"
+	"github.com/xnaveira/aoc2018/day6"
 	"log"
 	"os"
 	"strconv"
@@ -41,6 +42,7 @@ func main() {
 	days = append(days, day{"day3/input.txt", day3.Run, result{"", ""}})
 	days = append(days, day{"day4/input.txt", day4.Run, result{"", ""}})
 	days = append(days, day{"day5/input.txt", day5.Run, result{"", ""}})
+	days = append(days, day{"day6/input.txt", day6.Run, result{"", ""}})
 
 	theday, err := strconv.Atoi(os.Args[1])
 	if err != nil {
@@ -53,6 +55,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("Day %d:\nSolution to the first problem:%s\nSolution to the second problem:%s", theday, challenge.result.result1, challenge.result.result2)
+	fmt.Printf("\nDay %d:\nSolution to the first problem:%s\nSolution to the second problem:%s", theday, challenge.result.result1, challenge.result.result2)
 
 }
