@@ -59,7 +59,11 @@ func Run(input string) (string, string, error) {
 	ps := make(places, 0)
 
 	f, err := os.Open(input)
+	const givensize = 10000
+
 	//f, err := os.Open("day6/example.txt")
+	//const givensize = 32
+
 	if err != nil {
 		return "", "", err
 	}
@@ -97,10 +101,11 @@ func Run(input string) (string, string, error) {
 		}
 	}
 
-	a := generateArea(max)
+	a := generateArea(max, float64(1000000))
 
 	fmt.Println(ps)
 
+	//Create zones
 	for k, areaPoint := range a {
 		for _, pplace := range ps {
 			dd := pplace.distance(areaPoint.ap)
@@ -148,10 +153,33 @@ func Run(input string) (string, string, error) {
 
 	fmt.Println(count)
 
-	fmt.Printf("And the winner is: %v %d", winner, count)
+	fmt.Printf("And the winner is: %v %d\n", winner, count)
 	return1 := strconv.Itoa(count)
 
-	return return1, "", nil
+	b := generateArea(max, float64(0))
+
+	//Create zones
+	for idx, areaPoint := range b {
+		for _, pplace := range ps {
+			dd := pplace.distance(areaPoint.ap)
+			areaPoint.pl.d = areaPoint.pl.d + dd
+			b[idx] = areaPoint
+		}
+	}
+
+	fmt.Println(b)
+
+	safeZone := places{}
+
+	for _, areaPoint := range b {
+		if areaPoint.pl.d < givensize {
+			safeZone = append(safeZone, areaPoint.ap)
+		}
+	}
+
+	result2 := strconv.Itoa(len(safeZone))
+
+	return return1, result2, nil
 }
 
 func paintArea(z []areapoint) {
@@ -183,7 +211,7 @@ func paintArea(z []areapoint) {
 
 }
 
-func generateArea(fp place) []areapoint {
+func generateArea(fp place, init float64) []areapoint {
 
 	fmt.Printf("Generate area %.0f x %.0f\n", fp.X, fp.Y)
 	area := make([]areapoint, 0)
@@ -194,7 +222,7 @@ func generateArea(fp place) []areapoint {
 			area = append(area, areapoint{place{j, i}, struct {
 				q place
 				d float64
-			}{q: place{-1, -1}, d: 100000}})
+			}{q: place{-1, -1}, d: init}})
 		}
 	}
 
