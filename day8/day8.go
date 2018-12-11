@@ -103,6 +103,25 @@ func (n *node) readTree() int {
 	return result
 }
 
+func (n *node) readTree2() int {
+	result := 0
+	if n.nchild == 0 {
+		result = acc(n.metadata)
+	} else {
+		for _, c := range n.metadata {
+			if c == 0 {
+				continue
+			}
+			if c > n.nchild {
+				continue
+			}
+			result = result + n.children[c-1].readTree2()
+		}
+	}
+
+	return result
+}
+
 func acc(a []int) int {
 	result := 0
 	for _, e := range a {
@@ -134,6 +153,7 @@ func Run(input string) (string, string, error) {
 	}
 
 	result1 := strconv.Itoa(n.readTree())
+	result2 := strconv.Itoa(n.readTree2())
 
-	return result1, "", nil
+	return result1, result2, nil
 }
