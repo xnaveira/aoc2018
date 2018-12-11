@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 	"sort"
+	"strconv"
 )
 
 var example bool
@@ -48,7 +49,6 @@ func Run(input string) (string, string, error) {
 			log.Fatal(err)
 		}
 
-		fmt.Println(s1, " ", s2)
 		g.SetEdge(simple.Edge{
 			simple.Node(formatInput(int(s1[0]), example)),
 			simple.Node(formatInput(int(s2[0]), example)),
@@ -85,7 +85,9 @@ func Run(input string) (string, string, error) {
 		return "", "", err
 	}
 
-	return result1, string(steps), nil
+	result2 := strconv.Itoa(steps + 1)
+
+	return result1, result2, nil
 }
 
 func transitiveReduction(g *simple.DirectedGraph) {
@@ -159,11 +161,11 @@ func kahnWorkers(g *simple.DirectedGraph, w int) (int, error) {
 		S = tmpS
 		tmpworking := []worker{}
 		for i, ww := range working {
-			fmt.Printf("Second: %d. Working on: ", seconds)
-			for _, w := range working {
-				fmt.Printf("%s %d ", string(formaOutput(w.n.ID(), example)), w.u)
-			}
-			fmt.Printf("\n")
+			//fmt.Printf("Second: %d. Working on: ", seconds)
+			//for _, w := range working {
+			//	fmt.Printf("%s %d ", string(formaOutput(w.n.ID(), example)), w.u)
+			//}
+			//fmt.Printf("\n")
 			working[i].u--
 			if working[i].u == 0 {
 				S = append(S, g.From(ww.n)...)
@@ -177,11 +179,7 @@ func kahnWorkers(g *simple.DirectedGraph, w int) (int, error) {
 		working = tmpworking
 
 	}
-	if len(g.Edges()) != 0 {
-		return 0, fmt.Errorf("the graph ahs at least one cycle: %v", g.Edges())
-	} else {
-		return seconds, nil
-	}
+	return seconds, nil
 
 }
 
