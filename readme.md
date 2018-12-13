@@ -2,5 +2,5 @@
 
 https://adventofcode.com/
 
-Putting together golang solutions to the 2018 Advent of Code as quick and dirty as possible. 
-Slightly ashamed of the quality of the code but still it is fun.
+Quick and dirty solutions (most of them anyway) to the  2018 Advent of Code. 
+This code may or may not contain awful hacks and naive solutions to known problems.
