@@ -4,9 +4,12 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/buger/goterm"
+	"github.com/llgcode/draw2d/draw2dimg"
+	"image"
+	"image/color"
 	"log"
+	"math"
 	"os"
-	"time"
 )
 
 type position struct {
@@ -31,10 +34,61 @@ func (o *position) in(c points) bool {
 	return false
 }
 
+func (o position) paint(gc *draw2dimg.GraphicContext) {
+	//fmt.Printf("Painting at %d,%d\n", o.x, o.y)
+	gc.BeginPath()
+	fx, fy := float64(o.x), float64(o.y)
+	gc.MoveTo(fx, fy)
+	gc.LineTo(fx+1, fy)
+	gc.LineTo(fx+1, fy+1)
+	gc.LineTo(fx, fy+1)
+	gc.Close()
+	gc.FillStroke()
+}
+
+func (o position) displace(t position) position {
+	o.x += t.x
+	o.y += t.y
+	return o
+}
+
 type points []point
 
+func (c points) searchColumn() bool {
+	ccounter := map[int]int{}
+	for _, p := range c {
+		ccounter[p.p.y]++
+	}
+	max, candidate := 0, 0
+	for k, v := range ccounter {
+		if v > max {
+			max = v
+			candidate = k
+		}
+	}
+	magicColumn := []position{}
+	for _, p := range c {
+		if p.p.y == candidate {
+			magicColumn = append(magicColumn, p.p)
+		}
+	}
+	diff := magicColumn[0].x
+	for _, m := range magicColumn[1:] {
+		if m.x-diff == 1 {
+			continue
+		} else {
+			return false
+		}
+	}
+	return true
+}
+
+func (c points) area() int {
+	return (c.max().x - c.min().x) * (c.max().y - c.min().y)
+}
+
 func (c *points) max() position {
-	maxX, maxY := 0, 0
+	maxX, maxY := math.MinInt32, math.MinInt32
 	for _, p := range *c {
 		if p.p.x > maxX {
 			maxX = p.p.x
@@ -50,11 +104,30 @@ func (c *points) max() position {
 	}
 }
 
-func (c points) draw(size position) {
+func (c *points) min() position {
+	minX, minY := math.MaxInt32, math.MaxInt32
+	for _, p := range *c {
+		if p.p.x < minX {
+			minX = p.p.x
+		}
+		if p.p.y < minY {
+			minY = p.p.y
+		}
+	}
+	if minX <= minY {
+		return position{minX, minX}
+	} else {
+		return position{minY, minY}
+	}
+}
+
+func (c points) drawTerm(size position) {
 	goterm.Clear()
 	//size := c.max()
-	for i := -size.x; i < size.x; i++ {
-		for j := -size.y; j < size.y; j++ {
+	//for i := -size.x; i < size.x; i++ {
+	for i := 0; i < size.x; i++ {
+		//for j := -size.y; j < size.y; j++ {
+		for j := 0; j < size.y; j++ {
 			tp := position{i, j}
 			goterm.MoveCursor(i+size.x, j+size.y)
 			if tp.in(c) {
@@ -67,6 +140,41 @@ func (c points) draw(size position) {
 	goterm.Flush()
 	fmt.Println("")
 }
+
+func (c points) plot(size position, frame int) {
+	//transform := position{(size.x / 5) * 2, (size.y / 5) * 2}
+	//transform := position{(size.x / 10), (size.y / 10)}
+	dest := image.NewRGBA(image.Rect(0, 0, 2*size.x, 2*size.y))
+	gc := draw2dimg.NewGraphicContext(dest)
+
+	gc.SetLineWidth(0)
+
+	for i := -size.x; i < size.x; i++ {
+		for j := -size.y; j < size.y; j++ {
+			tp := position{i, j}
+			if tp.in(c) {
+				gc.SetFillColor(color.RGBA{0x00, 0x00, 0x00, 0xff})
+				tp.displace(position{size.x, size.y}).paint(gc)
+			} else {
+				gc.SetFillColor(color.RGBA{0xff, 0x00, 0x00, 0xff})
+				tp.displace(position{size.x, size.y}).paint(gc)
+			}
+		}
+	}
+	draw2dimg.SaveToPngFile(fmt.Sprintf("frame%d.png", frame), dest)
+}
+
+//func randomColor() color.RGBA {
+//
+//	max := 255
+//
+//	R := rand.Intn(max)
+//	G := rand.Intn(max)
+//	B := rand.Intn(max)
+//
+//	return color.RGBA{uint8(R), uint8(G), uint8(B), 0xff}
+//
+//}
 
 func (c points) transform() {
 	for i, ps := range c {
@@ -89,7 +197,8 @@ func main() {
 
 	scanner := bufio.NewScanner(f)
 
-	points := points{}
+	allpoints := points{}
+	//i := 0
 	for scanner.Scan() {
 
 		var x, y, vx, vy int
@@ -97,50 +206,47 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		points = append(points, point{position{x, y}, velocity{vx, vy}})
+		allpoints = append(allpoints, point{position{x, y}, velocity{vx, vy}})
 
 	}
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
 
-	//fmt.Println(points)
-	//err = drawPoints(points)
-	//if err != nil {
-	//	log.Fatal(err)
+	//size := allpoints.max()
+	type areapoints struct {
+		area int
+		ps   points
+	}
+	//areas := []areapoints{}
+	for i, _ := range allpoints {
+		fmt.Println("Frame ", i)
+		//copypoints := make(points, len(allpoints))
+		//copy(copypoints, allpoints)
+		//areas = append(areas, areapoints{allpoints.area(), copypoints})
+		fmt.Println(allpoints.area())
+		allpoints.transform()
+		//allpoints.plot(size, i)
+		//allpoints.drawTerm(size)
+		//time.Sleep(500 * time.Millisecond)
+		if i == 0 {
+			//allpoints.drawTerm(size)
+			allpoints.plot(allpoints.max(), 98)
+		}
+		//allpoints.plot(size, i)
+
+		//found := allpoints.searchColumn()
+		//if found {
+		//	//allpoints.plot(size, i)
+		//	fmt.Println("FOUND")
+		//}
+	}
+	//sort.SliceStable(areas, func(i, j int) bool {
+	//	return areas[i].area < areas[j].area
+	//})
+	//for i := 0; i < 3; i++ {
+	//	areas[i].ps.plot(size, 100+i)
 	//}
-	//drawTest()
-	size := points.max()
-	for _, _ = range points {
-		points.draw(size)
-		time.Sleep(500 * time.Millisecond)
-		points.transform()
-	}
-	//points.draw()
+	//allpoints.plot(size)
 	fmt.Println("Completed.")
-}
-
-func drawPoints(ps []point) error {
-	goterm.Clear()
-	for _, p := range ps {
-		goterm.MoveCursor(p.p.x, p.p.y)
-		_, err := goterm.Print(".")
-		if err != nil {
-			return err
-		}
-	}
-	goterm.Flush()
-	return nil
-}
-
-func drawTest() {
-	x, y := 20, 20
-	goterm.Clear()
-	for i := 0; i < x; i++ {
-		for j := 0; j < y; j++ {
-			goterm.MoveCursor(i, j)
-			goterm.Print("A")
-		}
-	}
-	goterm.Flush()
 }
